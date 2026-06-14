@@ -1,43 +1,12 @@
+## BigQuery Transformation
+
+After loading the transformed dataset into BigQuery, SQL queries are used to calculate percentage distributions and reporting metrics required for dashboarding.
+
+Example:
+
 SELECT
-
-TA,
-
-
-CASE
-WHEN GENDER = 'Male' THEN 'SEGMENT 1'
-WHEN GENDER = 'Female' THEN  'SEGMENT 2'
-WHEN GENDER = 'Unknown' THEN   'SEGMENT 3'
-WHEN GENDER = 'Prefer not to answer' THEN 'SEGMENT4'
-END AS GENDER,
-
-CASE
-WHEN Status = 'Pre Survey Quality Termination' THEN 'Quality-Disqualification'
-WHEN Status = 'Pre Survey DNC' THEN 'No Status'
-WHEN Status = 'Pre Survey Over Quota' THEN 'Blocked Quota'
-WHEN Status = 'Pre Survey Termination' THEN 'Disqualification[E]'
-WHEN Status = 'Start Survey DNC' THEN 'Incomplete'
-WHEN Status = 'Failed' THEN 'Disqualification[C]'
-WHEN Status = 'Over Quota' THEN 'Disqualification[Q]'
-WHEN Status = 'Quality Termination' THEN 'Duplication'
-WHEN Status = 'Completed' THEN 'PASS'
-  WHEN Status = 'Unknown' THEN 'DROP'
-
-END as Status,
-
-
-ROUND(COUNT(TA)/SUM(COUNT(TA)) OVER(), 2) AS perct_of_total
-
-
-
-FROM `my-pipeline-prokject.etl_dataset.converted_file`
-GROUP BY Status, GENDER, TA
-
-
-
-
-
-
-
-
-
-
+    Status,
+    GENDER,
+    ROUND(COUNT(TA)*100/SUM(COUNT(TA)) OVER(), 2) AS perct_of_total
+FROM dataset.converted_file
+GROUP BY Status, GENDER
